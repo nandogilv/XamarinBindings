@@ -7,6 +7,7 @@ using MonoTouch.UIKit;
 using System.Runtime.InteropServices;
 using MonoTouch.CoreAnimation;
 using System.Collections.Generic;
+using MonoTouch;
 
 namespace AlexTouch.PSPDFKit
 {
@@ -937,11 +938,21 @@ namespace AlexTouch.PSPDFKit
 
 	public partial class PSPDFAnnotationToolbar
 	{
-		public unsafe virtual void HideToolbar (bool animated, PSPDFAnnotationToolbarCompletionDel completionBlock)
+		// TODO: Subclassing does not work. MonoTouch issue?
+//		[Export ("hideToolbarAnimated:completion:")]
+//		public virtual void HideToolbar (bool animated, IntPtr completionBlock)
+//		{
+//			if (IsDirectBinding)
+//				Messaging.void_objc_msgSend_bool_IntPtr (this.Handle, Selector.GetHandle ("hideToolbarAnimated:completion:"), animated, completionBlock);
+//			else
+//				Messaging.void_objc_msgSendSuper_bool_IntPtr (this.Handle, Selector.GetHandle ("hideToolbarAnimated:completion:"), animated, completionBlock);
+//			
+//		}
+
+		public unsafe void HideToolbar (bool animated, PSPDFAnnotationToolbarCompletionDel completionBlock)
 		{
 			if (completionBlock == null)
 			{
-				MonoTouch.ObjCRuntime.Messaging.void_objc_msgSend_bool_IntPtr (this.Handle, Selector.GetHandle ("hideToolbarAnimated:completion:"), animated, IntPtr.Zero );
 				return;
 			}
 				
@@ -949,13 +960,28 @@ namespace AlexTouch.PSPDFKit
 			BlockLiteral block_completionBlock;
 			block_completionBlock = new BlockLiteral ();
 			block_ptr_completionBlock = &block_completionBlock;
-			block_completionBlock.SetupBlock (static_InnerPSPDFAnnotationToolbarCompletionDel, completionBlock);
-
-			MonoTouch.ObjCRuntime.Messaging.void_objc_msgSend_bool_IntPtr (this.Handle, Selector.GetHandle ("hideToolbarAnimated:completion:"), animated, (IntPtr) block_ptr_completionBlock);
+			block_completionBlock.SetupBlock (SDPSPDFAnnotationToolbarCompletionDel.Handler, completionBlock);
+			
+			MonoTouch.ObjCRuntime.Messaging.void_objc_msgSend_bool_IntPtr (this.Handle, Selector.GetHandle("hideToolbarAnimated:completion:"), animated, (IntPtr) block_ptr_completionBlock);
 			block_ptr_completionBlock->CleanupBlock ();
+			
 		}
 	}
+
+	internal delegate void DPSPDFAnnotationToolbarCompletionDel (IntPtr block);
 	
+	static internal class SDPSPDFAnnotationToolbarCompletionDel {
+		
+		static internal readonly DPSPDFAnnotationToolbarCompletionDel Handler = TPSPDFAnnotationToolbarCompletionDel;
+		
+		[MonoPInvokeCallback (typeof (DPSPDFAnnotationToolbarCompletionDel))]
+		static unsafe void TPSPDFAnnotationToolbarCompletionDel (IntPtr block) {
+			var descriptor = (BlockLiteral *) block;
+			var del = (global::AlexTouch.PSPDFKit.PSPDFAnnotationToolbarCompletionDel) (descriptor->global_handle != IntPtr.Zero ? GCHandle.FromIntPtr (descriptor->global_handle).Target : GCHandle.FromIntPtr (descriptor->local_handle).Target);
+			if (del != null)
+				del ();
+		}
+	}
 	//////////////////////////////////////////////
 	////		PSPDFAnnotationParser.h			//
 	//////////////////////////////////////////////
@@ -963,10 +989,10 @@ namespace AlexTouch.PSPDFKit
 	public partial class PSPDFAnnotationParser : NSObject
 	{
 		
-		public PSPDFAnnotation [] AnnotationsForPage (uint page, PSPDFAnnotationType type, CGPDFPage /*CGPDFPageRef*/ pageRef)
-		{
-			return AnnotationsForPage_ (page, type, pageRef.Handle);
-		}
+//		public PSPDFAnnotation [] AnnotationsForPage (uint page, PSPDFAnnotationType type, CGPDFPage /*CGPDFPageRef*/ pageRef)
+//		{
+//			return AnnotationsForPage_ (page, type, pageRef.Handle);
+//		}
 		
 	}
 	
@@ -1088,7 +1114,18 @@ namespace AlexTouch.PSPDFKit
 			return RenderAppearanceStream_ (annotation, context.Handle);
 		}
 	}
-	
+
+	public partial class PSPDFWord
+	{
+		public string Text
+		{
+			get
+			{
+				return this.StringValue();
+			}
+		}
+	}
+
 	//////////////////////////////////////////////////
 	////		PSPDFWebViewController.h			//
 	//////////////////////////////////////////////////
@@ -1272,6 +1309,11 @@ namespace AlexTouch.PSPDFKit
 		public PSPDFOutlineViewController (PSPDFViewController controller) : this (controller.Document, controller.Handle)
 		{
 			
+		}
+
+		public PSPDFOutlineViewController(PSPDFDocument document, PSPDFOutlineViewControllerDelegate del) : this(document, del.Handle)
+		{
+
 		}
 	}
 

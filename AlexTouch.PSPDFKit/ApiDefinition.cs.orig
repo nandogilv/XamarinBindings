@@ -557,6 +557,9 @@ namespace AlexTouch.PSPDFKit
 		[Export("stringValue")]
 		string StringValue ();
 		
+		[Export("stringValue")]
+		string Text { get; }
+		
 		[Export ("frame", ArgumentSemantic.Assign)]
 		RectangleF Frame { get; set; }
 		
@@ -879,8 +882,8 @@ namespace AlexTouch.PSPDFKit
 		[Export("initWithData:")]
 		IntPtr Constructor (NSData data);
 		
-//		[Export("initWithDataArray:")]
-//		IntPtr Constructor (NSArray data);
+		[Export("initWithDataArray:")]
+		IntPtr Constructor (NSArray data);
 		
 		[Export("initWithDataArray:")]
 		IntPtr Constructor (NSObject [] data);
@@ -888,8 +891,8 @@ namespace AlexTouch.PSPDFKit
 		[Export("initWithDataProvider:")][Internal]
 		PSPDFDocument InitWithDataProvider_ (IntPtr /*CGDataProvider*/ dataProvider);
 		
-//		[Export("initWithBaseURL:files:")]
-//		IntPtr Constructor (NSUrl basePath, NSArray files);
+		[Export("initWithBaseURL:files:")]
+		IntPtr Constructor (NSUrl basePath, NSArray files);
 		
 		[Export("initWithBaseURL:files:")]
 		IntPtr Constructor (NSUrl basePath, NSObject [] files);
@@ -960,10 +963,8 @@ namespace AlexTouch.PSPDFKit
 		[Export("annotationsEnabled", ArgumentSemantic.Assign)]
 		bool AnnotationsEnabled { [Bind("isAnnotationsEnabled")] get; set; }
 		
-		// NSOrderedSet is unbound. Use IntPtr for now.
-		[Export("editableAnnotationTypes", ArgumentSemantic.Copy)]
+		//[Export("editableAnnotationTypes", ArgumentSemantic.Copy)]
 		//NSOrderedSet EditableAnnotationTypes { [NullAllowed] get; [NullAllowed] set; }
-		IntPtr EditableAnnotationTypes { [NullAllowed] get; [NullAllowed] set; }
 		
 		[Export("canEmbedAnnotations", ArgumentSemantic.Assign)]
 		bool CanEmbedAnnotations { get; }
@@ -1662,9 +1663,9 @@ namespace AlexTouch.PSPDFKit
 		
 		// Subclassing
 		
-//		[Export("annotationsForPage:PSPDFAnnotationType:")][Internal]
-//		PSPDFAnnotation [] AnnotationsForPage_ (uint page, PSPDFAnnotationType type, IntPtr /*CGPDFPageRef*/ pageRef);
-
+		[Export("annotationsForPage:PSPDFAnnotationType:")][Internal]
+		PSPDFAnnotation [] AnnotationsForPage_ (uint page, PSPDFAnnotationType type, IntPtr /*CGPDFPageRef*/ pageRef);
+		
 		[Bind("dirtyAnnotations")]
 		NSDictionary DirtyAnnotations ();
 	}
@@ -3642,7 +3643,7 @@ namespace AlexTouch.PSPDFKit
 		
 		[Export("showToolbarInRect:animated:")]
 		void ShowToolbarInRect (RectangleF rect, bool animated);
-
+		
 //		[Export("hideToolbarAnimated:completion:")]
 //		void HideToolbar (bool animated, PSPDFAnnotationToolbarCompletionDel completionBlock);
 
@@ -3934,12 +3935,19 @@ namespace AlexTouch.PSPDFKit
 	Events=new Type [] { typeof (PSPDFOutlineViewControllerDelegate) })]
 	interface PSPDFOutlineViewController
 	{
-//		[Export("initWithDocument:delegate:")]
-//		IntPtr Constructor (PSPDFDocument document, [NullAllowed] PSPDFOutlineViewControllerDelegate Delegate);
+		[Export("initWithDocument:delegate:")]
+<<<<<<< HEAD
+		IntPtr Constructor (PSPDFDocument document, [NullAllowed] PSPDFOutlineViewControllerDelegate Delegate);
 
 		// Use this c'tor to use a specific class as the delegate.
 		[Export("initWithDocument:delegate:")]
 		IntPtr Constructor (PSPDFDocument document, [NullAllowed] IntPtr Delegate);
+=======
+		IntPtr Constructor (PSPDFDocument document, PSPDFOutlineViewControllerDelegate Delegate);
+
+		[Export("initWithDocument:delegate:")] [Internal]
+		IntPtr Constructor (PSPDFDocument document, IntPtr Delegate);
+>>>>>>> upstream/master
 		
 		[Export("allowCopy", ArgumentSemantic.Assign)]
 		bool AllowCopy { get; set; }
